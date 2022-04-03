@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+    <style>
+        .header {
+            padding: 12px 45px;
+            background-color: #002864;
+            color: #FFF;
+            align-items: center;
+            flex-wrap: wrap;
+            text-align: center;
+        }
+
+        .hero {
+            background-color: #c5cae9;
+            padding: 60px 45px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .features-inner {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-column-gap: 5px;
+            grid-row-gap: 5px;
+            align-items: center;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px 0;
+            color: #999;
+            font-size: .9rem;
+        }
+    </style>
+    <title>OJAS</title>
+</head>
+
+<body>
+    <div class="header">
+        <h3>OJAS</h3>
+    </div>
+    <br>
+    <div class="container cont">
+        <!-- <div class="mb-3">
+            <label for="url" class="form-label">Enter URL</label>
+            <input type="text" class="form-control" id="url" aria-describedby="emailHelp">
+        </div> -->
+
+        <button class="btn btn-primary" id="submitBtn" type="button">
+            <span id="buttonSpinner" class="spinner-border spinner-border-sm d-none" role="status"
+                aria-hidden="true"></span>
+            <span id="buttonText">Find</span>
+        </button>
+    </div>
+    <br>
+    <div class="container">
+        <!-- <div id="alertbox" class="alert alert-danger d-flex align-items-center d-none" role="alert">
+            <svg class="bi flex-shrink-0 me-2" width="24" height="24">
+                <use xlink:href="#exclamation-triangle-fill" />
+            </svg>
+            <div>
+                Enter Valid Pincode
+            </div>
+        </div>
+
+        <div id="alertbox2" class="alert alert-danger d-flex align-items-center d-none" role="alert">
+            <svg class="bi flex-shrink-0 me-2" width="24" height="24">
+                <use xlink:href="#exclamation-triangle-fill" />
+            </svg>
+            <div>
+                No Data Available
+            </div>
+        </div> -->
+
+    </div>
+    <!-- <div class="container" id="main"> -->
+    <div id="centers">
+        <!-- </div> -->
+    </div>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        var btnspinner = document.getElementById("buttonSpinner");
+        var btntext = document.getElementById("buttonText");
+        var submitBtn = document.getElementById("submitBtn");
+        var messgaeText = document.getElementById("messgaeText");
+        var centers = document.getElementById("centers");
+        var alertbox = document.getElementById("alertbox");
+        var alertbox2 = document.getElementById("alertbox2");
+        var main = document.getElementById("main");
+        var messageApi = "https://api.telegram.org/bot1867135565:AAGCNYbjXTR_lqycxWKmuXaFM3LgvmM3EDU/sendMessage?chat_id=@akgptest&text="
+
+
+        function start() {
+
+            // var url = document.getElementById("url").value;
+            btntext.textContent = "Loading";
+            submitBtn.disabled = true;
+            btnspinner.classList.remove("d-none");
+
+            axios.get(`https://proxy.ojas.workers.dev/?https://ojas.gujarat.gov.in/ojas3/NoticeBoardList.aspx?type=lCxUjNjnTp8=`)
+                .then(function (response) {
+                    // console.log(response.data);
+                    btntext.textContent = "Submit";
+                    var rawHTML = response.data;
+                    // console.log(rawHTML);
+                    var doc = document.createElement("html");
+                    doc.innerHTML = rawHTML;
+                    console.log(doc)
+                    var childcount = doc.querySelector("#example1 > tbody").childElementCount;
+                    var fetchingAlltd = doc.querySelectorAll("#example1 > tbody > tr > td")
+                    console.log(fetchingAlltd)
+                    allTitle = [];
+                    allLinks = [];
+                    for (var i = 0; i < childcount; i++) {
+                        allTitle.push(fetchingAlltd[i].firstChild.innerText);
+                        allLinks.push(fetchingAlltd[i].firstChild.attributes.href.nodeValue);
+
+                    }
+                    console.log(allTitle)
+                    console.log(allLinks)
+                    for (var i = 0; i < childcount; i++) {
+                        centers.innerHTML += `${[i + 1]}. ${allTitle[i]}<br>Link - <a href="${allLinks[i]}" target="_blank">${allLinks[i]}</a></br>
+                        <br>
+                        
+                            
+                            `
+                    }
+                    submitBtn.disabled = false;
+                    btnspinner.classList.add("d-none");
+                    var mg = document.getElementById("centers").innerText;
+                    console.log(mg)
+
+                    var tgapi = messageApi + mg
+                    console.log(tgapi)
+
+                })
+                .catch(function (error) {
+                    btntext.textContent = "Submit";
+                    submitBtn.disabled = false;
+                    btnspinner.classList.add("d-none");
+                    alertbox.classList.remove("d-none");
+                    main.classList.add("d-none");
+                    // handle error
+                    console.log(error);
+                })
+                .then(function () {
+                    // always executed
+                });
+        }
+
+        start()
+        function createDatalist(e) {
+            return `
+
+           <div class="card" style="width: 18rem;">
+             <img src="${e.gd$image.src}" class="card-img-top" alt="...">
+            <div class="card-body">
+            <h5 class="card-title">Name: ${e.name.$t}</h5>
+            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+            <a href="${e.uri.$t}" class="btn btn-primary" target="_blank">View</a>
+             </div>
+            </div>
+           `
+        }
+    </script>
+</body>
+
+</html>
